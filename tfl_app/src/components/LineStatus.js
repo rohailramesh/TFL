@@ -1,29 +1,35 @@
+// pages/index.js
 import React, { useState, useEffect } from "react";
 
-let uniqueKeyCounter = 0; //since this data does not have an 'id' to be used we just use a counter to increment for each item
-
 function LineStatus() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({});
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch("/api/tubeStatus");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const { data, lastUpdated } = await response.json();
+      setData(data);
+      setLastUpdated(lastUpdated);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    fetch("https://api.tfl.gov.uk/Line/Mode/tube/Disruption", {
-      method: "GET",
-      // Request headers
-      headers: {
-        "Cache-Control": "no-cache",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-        setData(data);
-      })
-      .catch((err) => console.error(err));
+    // Initial fetch
+    fetchData();
+
+    // Fetch data every 5 minutes
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -31,15 +37,17 @@ function LineStatus() {
       <div>
         <h1>Line Status</h1>
         <ul>
-          {data.map((item) => (
-            <li>
-              <p key={uniqueKeyCounter++}>{item.description}</p>
+          {Object.keys(data).map((lineName) => (
+            <li key={lineName}>
+              <p>
+                {lineName}: {data[lineName].State}
+              </p>
             </li>
           ))}
         </ul>
       </div>
       <div>
-        <h3>All other lines: Normal service</h3>
+        <h3>Last Updated: {lastUpdated}</h3>
       </div>
     </>
   );

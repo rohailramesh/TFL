@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@googlemaps/google-maps-services-js": "^3.3.28",
-    "@react-google-maps/api": "^2.18.1",
-    "cheerio": "^1.0.0-rc.12",
-    "uuid": "^9.0.0"
-  }
-}
