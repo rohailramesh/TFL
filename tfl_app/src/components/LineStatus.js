@@ -26,7 +26,7 @@ function LineStatus() {
     // Fetch data every 5 minutes
     const intervalId = setInterval(() => {
       fetchData();
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    }, 1 * 60 * 1000); // 5 minutes in milliseconds
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
@@ -42,6 +42,7 @@ function LineStatus() {
               <p>
                 {lineName}: {data[lineName].State}
               </p>
+              <p>{data[lineName].Description}</p>
             </li>
           ))}
         </ul>
